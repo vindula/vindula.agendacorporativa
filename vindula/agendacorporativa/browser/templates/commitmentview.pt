@@ -1,0 +1,49 @@
+<html metal:use-macro="here/main_template/macros/master">
+	<head>
+		
+	</head>
+	<body >
+	  	<div metal:fill-slot="content-core">
+
+			<div class="field ArchetypesField-DateTimeField" >
+          		<label class="formQuestion">
+          			<span>Inicio do Compromisso</span>:
+          		</label>
+      			<br />
+      			<div tal:content="python: context.start_datetime.strftime('%d/%m/%Y %H:%M')">29/07/2013 09:55 </div>
+       		</div>
+       		<div class="field ArchetypesField-DateTimeField" >
+          		<label class="formQuestion">
+          			<span>Final do Compromisso</span>:
+          		</label>
+      			<br />
+      			<div tal:content="python: context.end_datetime.strftime('%d/%m/%Y %H:%M')">29/07/2013 09:55 </div>
+       		</div>
+			<div class="field ArchetypesField-StringField" >
+          		<label class="formQuestion">
+          			<span>Localização</span>:
+          		</label>
+      			<br />
+      			<div tal:content="context/getLocation">São Paulo</div>
+       		</div>
+
+			<div class="field ArchetypesField-LinesField" >
+          		<label class="formQuestion">
+          			<span>Usuário que participarão desse compromisso</span>:
+          		</label>
+      		    <br>
+      		    <div>
+      		    	<tal:rep repeat="item context/convidados">
+      		    		<span tal:content="item"></span><br>
+      		    		
+      		    	</tal:rep>
+
+      		    </div>
+      		</div>
+
+			<h3><a href=""
+				   tal:attributes="href string: ${context/portal_url}/minha-agenda"	>Voltar para minha agenda</a></h3>
+   
+	  	</div>    
+  </body>
+</html>

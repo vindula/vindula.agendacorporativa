@@ -1,0 +1,57 @@
+<html metal:use-macro="here/main_template/macros/master">
+	<head>
+
+		<metal:slot fill-slot="style_slot">
+
+			<link rel='stylesheet' type="text/javascript"
+				  tal:attributes="href string: ${view/static}/fullcalendar/fullcalendar.css" />
+		
+		</metal:slot>
+		<metal:slot fill-slot="javascript_head_slot">
+
+			<script src='/fullcalendar/fullcalendar.min.js' type="text/javascript"
+					tal:attributes="src string: ${view/static}/fullcalendar/fullcalendar.min.js" />
+
+			<script src='/js/minha_agenda.js' type="text/javascript"
+					tal:attributes="src string: ${view/static}/js/minha_agenda.js" />
+
+			<script type="text/javascript"
+					tal:content="python: '''
+								window.url_events = '%(portal_url)s/my_events';
+							   ''' %{'portal_url': context.portal_url(),}" ></script>
+
+		</metal:slot>	
+		
+	</head>
+	<body >
+	  	<div metal:fill-slot="content">
+
+			<tal:condition condition="not: view/checkHomeFolder">
+		    	<dl class="portalMessage error">
+					<dt>Error</dt>
+        			<dd>Voce não pode criar compromisso, porque sua pasta pessoal não esta definida.
+        				Contate o administrador da intranet.</dd>
+    			</dl>
+		    </tal:condition>
+	  		
+			<metal:use use-macro="context/@@myvindulapanel/macros/page" />   
+			
+			<h2 class="h2title">Minha Agenda</h2>
+			<div id="content">
+				<div id="content-core" tal:define="member python:view.portal_membership.getAuthenticatedMember();">
+	                
+					<a href="" 
+						tal:attributes="href string:${view/getHomeFolder}/createObject?type_name=Commitment"
+						tal:condition="view/checkHomeFolder">Novo compromisso</a>
+		                      																					           					     
+		        </div>
+		        <br />
+
+				<div id='calendar'>
+					<div id="event_edit_container"></div>
+				</div>
+
+		    </div>    
+	  	</div>    
+  </body>
+</html>
