@@ -81,15 +81,25 @@ class MyCommitmentView(grok.View):
             obj = item.getObject()
             data_evento = '%s às %s' %(obj.start_datetime.strftime('%d/%m/%Y %H:%M'),
                                        obj.end_datetime.strftime('%d/%m/%Y %H:%M'))
-            decricao = '''<span> <b>Descrição:</b> %s <br />\n
+            descricao = '''<span> <b>Descrição:</b> %s <br />\n
                                  <b>Data:</b> %s <br />\n
                                  <b>Local:</b> %s <br />\n
                        </span>''' %(obj.Description(),data_evento, obj.getLocation())
 
+            if obj.getOwner().getUserName() == username:
+                read_more = '''
+                               <span> <br />\n
+                                  <a href="%s" style="text-decoration: underline;">
+                                    <i>Editar seu compromisso</i>
+                                  </a><br />\n
+                               </span>''' %(obj.absolute_url()+'/edit')
+
+                descricao += read_more
+
             allday = (obj.getEnd_datetime() - obj.getStart_datetime()) > 1.0
             event = {"id": "UID_%s" % obj.UID(),
                      "title": obj.Title(),
-                     "description": decricao,
+                     "description": descricao,
                      "start": obj.getStart_datetime().rfc822(),
                      "end": obj.getEnd_datetime().rfc822(),
                      "url": obj.absolute_url(),
