@@ -4,9 +4,12 @@ from zope.interface import Interface
 
 from Products.CMFCore.utils import getToolByName
 
+from AccessControl.SecurityManagement import newSecurityManager, getSecurityManager, setSecurityManager
+from vindula.agendacorporativa.browser.search import busca_commitment
+
 import json
 from datetime import datetime
-from copy import copy
+
 
 grok.templatedir('templates')
 
@@ -50,31 +53,20 @@ class MyCommitmentView(grok.View):
     def update(self):
         context = self.context
 
-        ctool = getToolByName(context, 'portal_catalog') 
         membership = getToolByName(context, 'portal_membership') 
 
-        path = context.portal_url.getPortalObject().getPhysicalPath()
-
+        user_admin = membership.getMemberById('admin')
         user_logado = membership.getAuthenticatedMember()
         username = user_logado.getUserName()
+        
+        # stash the existing security manager so we can restore it
+        old_security_manager = getSecurityManager()
+        
+        # create a new context, as the owner of the folder
+        newSecurityManager(self.request,user_admin)
 
-        query = {'path': {'query':'/'.join(path)},
-                 'portal_type': ('Commitment',),
-                 'sort_on':'created',
-                 'sort_order':'descending',
-                 }
+        result = busca_commitment(context,username)
 
-        #Busca por conpromissos do probrio usuario
-        query1 = copy(query)
-        query1['Creator'] = username 
-        result1 = ctool(**query1)
-
-        #Busca por compromissos que o usuario participa
-        query2 = copy(query)
-        query2['getConvidados'] = [username]
-        result2 = ctool(**query2)
-
-        result = result1 + result2
         L =[]
 
         for item in result:
@@ -107,5 +99,8 @@ class MyCommitmentView(grok.View):
                      }
 
             L.append(event)
+
+        # restore the original context
+        setSecurityManager(old_security_manager)
 
         self.retorno = L

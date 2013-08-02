@@ -18,6 +18,7 @@ from Products.UserAndGroupSelectionWidget.at import widget
 
 from Products.Archetypes.interfaces import IObjectEditedEvent, IObjectInitializedEvent
 
+from vindula.myvindula.tools.utils import UtilMyvindula
 
 Commitment_schema = ATContentTypeSchema + Schema((
 
@@ -95,15 +96,18 @@ registerType(Commitment, PROJECTNAME)
 
 @grok.subscribe(ICommitment, IObjectEditedEvent)        
 def ModifiedCommitment(context, event):
-	print 'Modifie'
-	set_permision_urer_convidado(context)
+    # print 'Modifie'
+    set_permision_user_convidado(context)
+    envia_email_user_convidado(context)
 
 @grok.subscribe(ICommitment, IObjectInitializedEvent)        
 def CreatedCommitment(context, event):
-	print 'Create'
-	set_permision_urer_convidado(context)
+    # print 'Create'
+    set_permision_user_convidado(context)
+    envia_email_user_convidado(context,True)
 
-def set_permision_urer_convidado(context):
+
+def set_permision_user_convidado(context):
     if not 'portal_factory' in context.getPhysicalPath():
         for username, roles in context.get_local_roles():
             if not 'Owner' in roles:
@@ -112,6 +116,33 @@ def set_permision_urer_convidado(context):
         for username in context.getConvidados():
             context.manage_setLocalRoles(username, ['Reader'])
 
+def envia_email_user_convidado(context,is_edit=True):
+    tools = UtilMyvindula()
+    list_user = [context.getOwner().getUserName()]
+    list_user += context.getConvidados()
 
+    titulo_compromisso = context.Title()
+    link_agenda = '%s/minha-agenda' % context.portal_url()
+    data_compromisso =  '%s às %s' %(context.start_datetime.strftime('%d/%m/%Y %H:%M'),
+                                     context.end_datetime.strftime('%d/%m/%Y %H:%M'))
 
+    if is_edit:
+        assunto = 'O Compromisso %s foi editado.' % titulo_compromisso
+    else:
+        assunto = 'O Compromisso %s foi criado.' % titulo_compromisso
+
+    msg = '''Olá, %s você acaba de ser convidado a participar do compromisso %s,
+             que será realizado no pedíodo de  %s. <br/> 
+            
+             Para maiores informações acesse o <a href="%s"> link </a>.''' 
+
+    for username in list_user:
+        obj_user = tools.get_prefs_user(username)
+        email = obj_user.get('email')
+
+        if email:
+            tools.envia_email(context, msg %(obj_user.get('name',username),
+                                             titulo_compromisso,
+                                             data_compromisso,
+                                             link_agenda), assunto, email)
 

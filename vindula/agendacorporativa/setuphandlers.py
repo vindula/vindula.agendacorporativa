@@ -40,3 +40,6 @@ def create_index(context):
     if len(indexables) > 0:
         logger.info("Indexing new indexes %s.", ', '.join(indexables))
         catalog.manage_reindexIndex(ids=indexables)
+
+    if 'getStart_datetime' in indexes:
+        catalog.manage_reindexIndex(ids=['getStart_datetime'])

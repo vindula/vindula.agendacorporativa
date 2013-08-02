@@ -1,0 +1,39 @@
+<metal:page metal:define-macro="portlet">
+	<dl class="portlet" >
+	    <dt class="portletHeader">
+	        <span class="portletTopLeft"></span>
+	        <span class="tile" >Meus Compromissos</span>
+	        <span class="portletTopRight"></span>
+	    </dt>
+	    <dd class="portletItem" 
+	    	tal:define="view python:context.restrictedTraverse('@@portlet_agenda')" >
+			<div id="busca-agenda" class="portlet-agenda">
+	
+				<tal:rep repeat="item view/retorno">
+					<div class="info_boxTipo2 borderDif" tal:define="obj item/getObject" >
+						<a href="" tal:attributes="href obj/absolute_url|string:#">
+							<h2 tal:content="obj/Title|string: "></h2>	
+						</a>
+						<p tal:on-error="nothing">
+							<label>Data:</label>
+							<span tal:content="python: obj.start_datetime.strftime('%d/%m/%Y %H:%M')"></span> às
+							<span tal:content="python: obj.end_datetime.strftime('%d/%m/%Y %H:%M')"></span>
+						</p>
+						<p>
+							<label>Local:</label>
+							<span tal:content="obj/getLocation|string: "></span>
+						</p>
+						<p tal:on-error="nothing">
+							<label>Descrição:</label>
+							<span tal:content="python: obj.Description()[:100]"></span>
+						</p>
+
+					</div>
+				</tal:rep>
+
+			</div>    	
+	    </dd>
+	    <dd class="portletFooter"></dd>
+	</dl>
+
+</metal:page>
